@@ -1,0 +1,63 @@
+@startuml autobot_sequence_order
+!theme plain
+autonumber
+skinparam responseMessageBelowArrow true
+
+actor "Khách hàng\n(Customer)" as User
+participant "Giao diện Web\n(React Frontend)" as Frontend
+participant "API Gateway\n(Express Route & Auth)" as API
+participant "Order Controller\n(Node.js)" as Controller
+database "MySQL Database\n(InnoDB)" as DB
+
+User -> Frontend : Bấm "Xác nhận đặt hàng"
+activate Frontend
+
+Frontend -> API : POST /api/orders\nHeaders: Bearer {token}\nBody: {shippingAddress, items}
+activate API
+
+API -> API : Xác thực JWT & Kiểm tra quyền 'user'
+alt Token không hợp lệ / hết hạn
+    API --> Frontend : 401 Unauthorized
+    Frontend --> User : Thông báo vui lòng đăng nhập lại
+else Token hợp lệ
+    API -> Controller : createOrder(req, res)
+    activate Controller
+    
+    Controller -> DB : getConnection() & beginTransaction()
+    activate DB
+    
+    loop Duyệt qua từng sản phẩm trong giỏ
+        Controller -> DB : SELECT id, price, stock_quantity\nFROM products WHERE id = ? FOR UPDATE
+        note right: Khóa bản ghi (FOR UPDATE)\nchống race condition
+        DB --> Controller : Trả về dữ liệu tồn kho hiện tại
+        
+        alt Tồn kho < Số lượng mua
+            Controller -> DB : rollback()
+            Controller --> Frontend : 422 Unprocessable Entity\n(Sản phẩm không đủ hàng)
+            Frontend --> User : Cảnh báo sản phẩm đã hết hàng
+        end
+    end
+    
+    Controller -> Controller : Tính toán tổng tiền (subtotal + shippingFee)
+    Controller -> DB : INSERT INTO orders (order_code, user_id, status, ...)\nVALUES (...)
+    DB --> Controller : Trả về orderResult.insertId
+    
+    loop Thêm chi tiết và trừ tồn kho
+        Controller -> DB : INSERT INTO order_items (order_id, product_id, quantity, unit_price)
+        Controller -> DB : UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?
+    end
+    
+    Controller -> DB : commit()
+    DB --> Controller : Commit thành công
+    deactivate DB
+    
+    Controller --> Frontend : 201 Created\n{orderCode, totalAmount, message: 'Đặt hàng thành công'}
+    deactivate Controller
+    
+    Frontend -> Frontend : Xóa sạch giỏ hàng trong Context
+    Frontend --> User : Hiển thị màn hình đặt hàng thành công & mã đơn
+end
+deactivate API
+deactivate Frontend
+
+@enduml

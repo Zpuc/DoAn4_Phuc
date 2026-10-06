@@ -1,0 +1,72 @@
+@startuml autobot_use_case
+!theme plain
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor "Khách vãng lai\n(Guest)" as Guest
+actor "Khách hàng\n(Member)" as Customer
+actor "Quản trị viên\n(Admin)" as Admin
+
+Guest <|-- Customer
+
+rectangle "Hệ Thống AUTOBOT Gundam Store" {
+    package "Xác thực & Tài khoản" {
+        usecase "Đăng ký tài khoản" as UC_Register
+        usecase "Đăng nhập" as UC_Login
+        usecase "Đăng xuất" as UC_Logout
+        usecase "Quản lý hồ sơ cá nhân" as UC_Profile
+    }
+
+    package "Khám phá Sản phẩm" {
+        usecase "Xem danh sách sản phẩm" as UC_ViewList
+        usecase "Lọc theo Grade / Danh mục" as UC_Filter
+        usecase "Tìm kiếm sản phẩm" as UC_Search
+        usecase "Xem chi tiết sản phẩm" as UC_ViewDetail
+    }
+
+    package "Mua sắm & Đơn hàng" {
+        usecase "Quản lý giỏ hàng" as UC_Cart
+        usecase "Áp dụng mã giảm giá" as UC_Voucher
+        usecase "Tiến hành đặt hàng (Checkout)" as UC_Checkout
+        usecase "Xem lịch sử đơn hàng" as UC_OrderHistory
+        usecase "Đánh giá & Bình luận sản phẩm" as UC_Review
+    }
+
+    package "Quản trị Hệ thống" {
+        usecase "Quản lý danh mục" as UC_ManageCat
+        usecase "Quản lý sản phẩm (CRUD)" as UC_ManageProd
+        usecase "Quản lý đơn hàng & Cập nhật trạng thái" as UC_ManageOrder
+        usecase "Quản lý tài khoản người dùng" as UC_ManageUser
+        usecase "Xem báo cáo thống kê doanh thu" as UC_Dashboard
+    }
+}
+
+' Khách vãng lai
+Guest --> UC_ViewList
+Guest --> UC_Filter
+Guest --> UC_Search
+Guest --> UC_ViewDetail
+Guest --> UC_Register
+Guest --> UC_Login
+
+' Khách hàng đã đăng nhập
+Customer --> UC_Logout
+Customer --> UC_Profile
+Customer --> UC_Cart
+Customer --> UC_Checkout
+Customer --> UC_OrderHistory
+Customer --> UC_Review
+
+UC_Checkout ..> UC_Voucher : <<include>>
+UC_Checkout ..> UC_Cart : <<include>>
+
+' Quản trị viên
+Admin --> UC_Login
+Admin --> UC_ManageCat
+Admin --> UC_ManageProd
+Admin --> UC_ManageOrder
+Admin --> UC_ManageUser
+Admin --> UC_Dashboard
+
+@enduml

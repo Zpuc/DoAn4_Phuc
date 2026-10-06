@@ -1,0 +1,18 @@
+{
+  "name": "autobot-gundam-store",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k -n FRONTEND,BACKEND -c cyan,yellow \"npm --prefix frontend run dev\" \"npm --prefix backend run dev\"",
+    "dev:all": "concurrently -k -n FRONTEND,BACKEND -c cyan,yellow \"npm --prefix frontend run dev\" \"npm --prefix backend run dev\"",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build": "npm --prefix frontend run build",
+    "seed": "npm --prefix backend run seed",
+    "test:flow": "npm --prefix backend run test:flow"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}

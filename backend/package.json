@@ -1,0 +1,25 @@
+{
+  "name": "autobot-store-api",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "seed": "node src/scripts/seed.js",
+    "test:flow": "node src/scripts/testFlow.js"
+  },
+  "dependencies": {
+    "axios": "^1.20.0",
+    "bcryptjs": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "express-validator": "latest",
+    "helmet": "latest",
+    "jsonwebtoken": "latest",
+    "morgan": "latest",
+    "multer": "^2.4.0",
+    "mysql2": "latest"
+  }
+}

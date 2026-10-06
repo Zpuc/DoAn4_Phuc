@@ -1,0 +1,6 @@
+import { pool } from '../config/db.js'
+
+export async function listCategories(req, res) { const [rows] = await pool.query('SELECT * FROM categories ORDER BY name'); res.json(rows) }
+export async function createCategory(req, res) { const { name, slug, description = null } = req.body; const [result] = await pool.query('INSERT INTO categories (name, slug, description) VALUES (?, ?, ?)', [name, slug, description]); res.status(201).json({ id: result.insertId, message: 'Đã tạo danh mục.' }) }
+export async function updateCategory(req, res) { const { name, slug, description = null, isActive = true } = req.body; const [result] = await pool.query('UPDATE categories SET name = ?, slug = ?, description = ?, is_active = ? WHERE id = ?', [name, slug, description, isActive, req.params.id]); if (!result.affectedRows) return res.status(404).json({ message: 'Không tìm thấy danh mục.' }); res.json({ message: 'Đã cập nhật danh mục.' }) }
+export async function deleteCategory(req, res) { const [result] = await pool.query('UPDATE categories SET is_active = FALSE WHERE id = ?', [req.params.id]); if (!result.affectedRows) return res.status(404).json({ message: 'Không tìm thấy danh mục.' }); res.json({ message: 'Đã ẩn danh mục.' }) }

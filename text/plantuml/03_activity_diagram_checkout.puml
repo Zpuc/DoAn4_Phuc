@@ -1,0 +1,55 @@
+@startuml autobot_activity_checkout
+!theme plain
+skinparam roundcorner 10
+
+start
+:Khách hàng chọn sản phẩm và thêm vào giỏ;
+:Xem giỏ hàng (Cart Drawer);
+
+if (Giỏ hàng có sản phẩm?) then (Không)
+    :Thông báo giỏ hàng trống;
+    stop
+else (Có)
+    :Bấm "Tiến hành đặt hàng";
+endif
+
+if (Đã đăng nhập?) then (Chưa)
+    :Chuyển hướng đến trang Đăng nhập / Đăng ký;
+    :Người dùng thực hiện đăng nhập;
+else (Đã đăng nhập)
+endif
+
+:Hiển thị Form thông tin giao hàng;
+:Nhập Họ tên, Số điện thoại, Địa chỉ nhận hàng;
+:Chọn phương thức thanh toán (COD / Chuyển khoản);
+
+if (Nhập mã giảm giá?) then (Có)
+    :Kiểm tra tính hợp lệ của Voucher;
+    if (Voucher hợp lệ & đủ điều kiện?) then (Đúng)
+        :Áp dụng giảm trừ vào tổng tiền;
+    else (Sai)
+        :Thông báo mã không hợp lệ;
+    endif
+else (Không)
+endif
+
+:Bấm "Xác nhận đặt hàng";
+:Hệ thống bắt đầu Database Transaction;
+
+:Kiểm tra tồn kho từng sản phẩm trong kho (FOR UPDATE);
+if (Đủ hàng trong kho?) then (Có)
+    :Tạo bản ghi Đơn hàng mới (orders);
+    :Tạo các dòng chi tiết đơn hàng (order_items);
+    :Trừ số lượng tồn kho (stock_quantity);
+    :Commit Transaction;
+    :Xóa giỏ hàng trên ứng dụng;
+    :Gửi thông báo Đặt hàng thành công và mã đơn;
+    stop
+else (Không đủ hàng)
+    :Rollback Transaction;
+    :Báo lỗi sản phẩm đã hết hàng hoặc không đủ số lượng;
+    :Yêu cầu người dùng điều chỉnh lại giỏ hàng;
+    stop
+endif
+
+@enduml

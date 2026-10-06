@@ -1,0 +1,245 @@
+@startuml autobot_erd
+!theme plain
+skinparam linetype ortho
+
+entity "users" as users {
+  * id : INT UNSIGNED <<PK>>
+  --
+  full_name : VARCHAR(120)
+  email : VARCHAR(160) <<UQ>>
+  password_hash : VARCHAR(255)
+  phone : VARCHAR(20)
+  address : VARCHAR(255)
+  role : ENUM('admin','user')
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "user_addresses" as user_addresses {
+  * id : INT UNSIGNED <<PK>>
+  --
+  * user_id : INT UNSIGNED <<FK>>
+  recipient_name : VARCHAR(120)
+  phone : VARCHAR(20)
+  address_line : VARCHAR(255)
+  city : VARCHAR(100)
+  is_default : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "categories" as categories {
+  * id : INT UNSIGNED <<PK>>
+  --
+  name : VARCHAR(80) <<UQ>>
+  slug : VARCHAR(100) <<UQ>>
+  description : VARCHAR(255)
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "brands" as brands {
+  * id : INT UNSIGNED <<PK>>
+  --
+  name : VARCHAR(80) <<UQ>>
+  slug : VARCHAR(100) <<UQ>>
+  country : VARCHAR(80)
+  description : VARCHAR(255)
+  logo_url : VARCHAR(500)
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+}
+
+entity "products" as products {
+  * id : INT UNSIGNED <<PK>>
+  --
+  * category_id : INT UNSIGNED <<FK>>
+  * brand_id : INT UNSIGNED <<FK>>
+  sku : VARCHAR(50) <<UQ>>
+  name : VARCHAR(180)
+  grade : VARCHAR(40)
+  scale : VARCHAR(20)
+  price : DECIMAL(12,2)
+  old_price : DECIMAL(12,2)
+  stock_quantity : INT UNSIGNED
+  condition_status : ENUM
+  warranty_months : INT UNSIGNED
+  warranty_policy : TEXT
+  manufacturer : VARCHAR(120)
+  series_name : VARCHAR(120)
+  material : VARCHAR(120)
+  detail_count : INT UNSIGNED
+  accessories : TEXT
+  assembly_type : VARCHAR(80)
+  origin : VARCHAR(120)
+  description : TEXT
+  image_url : VARCHAR(500)
+  gallery_images : TEXT
+  height_cm : DECIMAL(6,2)
+  box_weight_g : INT UNSIGNED
+  box_size : VARCHAR(80)
+  release_year : INT UNSIGNED
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "product_images" as product_images {
+  * id : INT UNSIGNED <<PK>>
+  --
+  * product_id : INT UNSIGNED <<FK>>
+  image_url : VARCHAR(500)
+  is_primary : BOOLEAN
+  display_order : INT UNSIGNED
+  created_at : TIMESTAMP
+}
+
+entity "product_inventory_logs" as product_inventory_logs {
+  * id : BIGINT UNSIGNED <<PK>>
+  --
+  * product_id : INT UNSIGNED <<FK>>
+  change_type : ENUM
+  quantity_change : INT
+  previous_stock : INT UNSIGNED
+  current_stock : INT UNSIGNED
+  note : VARCHAR(255)
+  created_by_user_id : INT UNSIGNED <<FK>>
+  created_at : TIMESTAMP
+}
+
+entity "wishlists" as wishlists {
+  * id : BIGINT UNSIGNED <<PK>>
+  --
+  * user_id : INT UNSIGNED <<FK>>
+  * product_id : INT UNSIGNED <<FK>>
+  created_at : TIMESTAMP
+}
+
+entity "cart_items" as cart_items {
+  * id : BIGINT UNSIGNED <<PK>>
+  --
+  * user_id : INT UNSIGNED <<FK>>
+  * product_id : INT UNSIGNED <<FK>>
+  quantity : INT UNSIGNED
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "vouchers" as vouchers {
+  * id : INT UNSIGNED <<PK>>
+  --
+  code : VARCHAR(50) <<UQ>>
+  description : VARCHAR(255)
+  discount_percent : INT UNSIGNED
+  discount_amount : DECIMAL(12,2)
+  min_order_amount : DECIMAL(12,2)
+  usage_limit : INT UNSIGNED
+  times_used : INT UNSIGNED
+  is_active : BOOLEAN
+  created_at : TIMESTAMP
+}
+
+entity "orders" as orders {
+  * id : BIGINT UNSIGNED <<PK>>
+  --
+  order_code : VARCHAR(30) <<UQ>>
+  * user_id : INT UNSIGNED <<FK>>
+  status : ENUM
+  payment_method : ENUM
+  shipping_address : VARCHAR(255)
+  customer_note : VARCHAR(500)
+  voucher_code : VARCHAR(50)
+  discount_amount : DECIMAL(12,2)
+  subtotal : DECIMAL(12,2)
+  shipping_fee : DECIMAL(12,2)
+  total_amount : DECIMAL(12,2)
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+entity "order_items" as order_items {
+  * id : BIGINT UNSIGNED <<PK>>
+  --
+  * order_id : BIGINT UNSIGNED <<FK>>
+  * product_id : INT UNSIGNED <<FK>>
+  product_name : VARCHAR(180)
+  unit_price : DECIMAL(12,2)
+  quantity : INT UNSIGNED
+  line_total : DECIMAL(12,2)
+}
+
+entity "voucher_usages" as voucher_usages {
+  * id : BIGINT UNSIGNED <<PK>>
+  --
+  * voucher_id : INT UNSIGNED <<FK>>
+  * user_id : INT UNSIGNED <<FK>>
+  * order_id : BIGINT UNSIGNED <<FK>>
+  discount_applied : DECIMAL(12,2)
+  used_at : TIMESTAMP
+}
+
+entity "order_status_logs" as order_status_logs {
+  * id : BIGINT UNSIGNED <<PK>>
+  --
+  * order_id : BIGINT UNSIGNED <<FK>>
+  previous_status : ENUM
+  new_status : ENUM
+  note : VARCHAR(255)
+  changed_by_user_id : INT UNSIGNED <<FK>>
+  created_at : TIMESTAMP
+}
+
+entity "reviews" as reviews {
+  * id : BIGINT UNSIGNED <<PK>>
+  --
+  * product_id : INT UNSIGNED <<FK>>
+  * user_id : INT UNSIGNED <<FK>>
+  rating : TINYINT UNSIGNED
+  comment : TEXT
+  is_approved : BOOLEAN
+  created_at : TIMESTAMP
+}
+
+entity "news_articles" as news_articles {
+  * id : INT UNSIGNED <<PK>>
+  --
+  * author_id : INT UNSIGNED <<FK>>
+  related_product_id : INT UNSIGNED <<FK>>
+  title : VARCHAR(200)
+  slug : VARCHAR(220) <<UQ>>
+  excerpt : VARCHAR(350)
+  content : LONGTEXT
+  cover_image : VARCHAR(500)
+  category_tag : VARCHAR(50)
+  related_grade : VARCHAR(50)
+  views_count : INT UNSIGNED
+  is_published : BOOLEAN
+  created_at : TIMESTAMP
+  updated_at : TIMESTAMP
+}
+
+' Relationships
+categories ||--o{ products : "phân loại"
+brands ||--o{ products : "sản xuất"
+products ||--o{ product_images : "có ảnh"
+products ||--o{ product_inventory_logs : "theo dõi kho"
+products ||--o{ order_items : "được mua"
+orders ||--|{ order_items : "gồm các món"
+orders ||--o{ order_status_logs : "tiến trình"
+users ||--o{ orders : "đặt hàng"
+users ||--o{ user_addresses : "sở hữu"
+users ||--o{ wishlists : "yêu thích"
+products ||--o{ wishlists : "được lưu"
+users ||--o{ cart_items : "chứa hàng"
+products ||--o{ cart_items : "trong giỏ"
+users ||--o{ reviews : "đánh giá"
+products ||--o{ reviews : "nhận nhận xét"
+vouchers ||--o{ voucher_usages : "áp dụng"
+users ||--o{ voucher_usages : "sử dụng mã"
+orders ||--o{ voucher_usages : "giảm giá cho"
+users ||--o{ news_articles : "viết bài"
+products ||--o{ news_articles : "được đề cập"
+
+@enduml

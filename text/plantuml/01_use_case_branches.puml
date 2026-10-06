@@ -1,0 +1,195 @@
+@startuml uc_branch_auth
+!theme plain
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor "Khách vãng lai" as Guest
+actor "Khách hàng (Member)" as Customer
+actor "Quản trị viên (Admin)" as Admin
+
+Guest <|-- Customer
+
+rectangle "Phân Hệ Xác Thực & Tài Khoản" {
+    usecase "Đăng ký tài khoản" as UC_Register
+    usecase "Đăng nhập hệ thống" as UC_Login
+    usecase "Đăng xuất" as UC_Logout
+    usecase "Quản lý thông tin cá nhân" as UC_Profile
+    usecase "Quản lý sổ địa chỉ giao hàng" as UC_Address
+    usecase "Xem danh sách người dùng" as UC_ListUsers
+    usecase "Tạo tài khoản nhân viên" as UC_CreateUser
+    usecase "Khóa / Mở khóa tài khoản" as UC_ToggleActive
+    usecase "Phân quyền vai trò (Role)" as UC_ChangeRole
+    usecase "Xóa tài khoản người dùng" as UC_DeleteUser
+    usecase "Kiểm tra quyền truy cập" as UC_CheckAuth
+}
+
+Guest --> UC_Register
+Guest --> UC_Login
+
+Customer --> UC_Logout
+Customer --> UC_Profile
+Customer --> UC_Address
+
+Admin --> UC_Login
+Admin --> UC_Logout
+Admin --> UC_ListUsers
+Admin --> UC_CreateUser
+Admin --> UC_ToggleActive
+Admin --> UC_ChangeRole
+Admin --> UC_DeleteUser
+
+UC_Profile ..> UC_CheckAuth : <<include>>
+UC_Address ..> UC_CheckAuth : <<include>>
+UC_ListUsers ..> UC_CheckAuth : <<include>>
+
+@enduml
+
+@startuml uc_branch_products
+!theme plain
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor "Khách hàng / Khách vãng lai" as User
+actor "Quản trị viên (Admin)" as Admin
+
+rectangle "Phân Hệ Sản Phẩm & Thương Hiệu / Danh Mục" {
+    usecase "Xem danh sách mô hình Gunpla" as UC_ViewList
+    usecase "Tìm kiếm sản phẩm (Tên, SKU)" as UC_Search
+    usecase "Lọc theo Grade (HG, RG, MG...)" as UC_FilterGrade
+    usecase "Lọc theo Thương hiệu (Bandai...)" as UC_FilterBrand
+    usecase "Xem chi tiết mô hình & thông số kỹ thuật" as UC_ViewDetail
+    usecase "Thêm / Xóa khỏi Wishlist (Yêu thích)" as UC_Wishlist
+    
+    usecase "Thêm mô hình Gunpla mới" as UC_AddProd
+    usecase "Tải lên hình ảnh sản phẩm" as UC_UploadImg
+    usecase "Chỉnh sửa thông số mô hình" as UC_EditProd
+    usecase "Xóa / Ngừng bán mô hình" as UC_DeleteProd
+    
+    usecase "Quản lý danh mục Grade (CRUD)" as UC_ManageCat
+    usecase "Quản lý thương hiệu hãng sản xuất (CRUD)" as UC_ManageBrand
+    usecase "Xuất danh sách sản phẩm ra CSV" as UC_ExportProdCSV
+}
+
+User --> UC_ViewList
+User --> UC_Search
+User --> UC_FilterGrade
+User --> UC_FilterBrand
+User --> UC_ViewDetail
+User --> UC_Wishlist
+
+Admin --> UC_AddProd
+Admin --> UC_EditProd
+Admin --> UC_DeleteProd
+Admin --> UC_ManageCat
+Admin --> UC_ManageBrand
+Admin --> UC_ExportProdCSV
+
+UC_AddProd ..> UC_UploadImg : <<include>>
+UC_EditProd ..> UC_UploadImg : <<extend>>
+UC_ViewList <.. UC_Search : <<extend>>
+UC_ViewList <.. UC_FilterGrade : <<extend>>
+UC_ViewList <.. UC_FilterBrand : <<extend>>
+
+@enduml
+
+@startuml uc_branch_orders
+!theme plain
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor "Khách hàng (Member)" as Customer
+actor "Quản trị viên (Admin)" as Admin
+
+rectangle "Phân Hệ Giỏ Hàng, Đặt Hàng & Quản Trị Đơn" {
+    usecase "Thêm sản phẩm vào giỏ" as UC_AddToCart
+    usecase "Cập nhật số lượng / Xóa món giỏ hàng" as UC_UpdateCart
+    usecase "Tiến hành Đặt hàng (Checkout)" as UC_Checkout
+    usecase "Nhập địa chỉ & Chọn thanh toán" as UC_SelectAddress
+    usecase "Áp dụng mã Voucher giảm giá" as UC_ApplyVoucher
+    usecase "Xem lịch sử đơn hàng của tôi" as UC_MyOrders
+    usecase "Theo dõi tiến độ đơn & Timeline" as UC_TrackOrder
+    
+    usecase "Xem danh sách toàn bộ đơn hàng" as UC_ListAllOrders
+    usecase "Lọc & Tìm kiếm đơn hàng" as UC_SearchOrders
+    usecase "Xem chi tiết sản phẩm trong đơn" as UC_OrderDetail
+    usecase "Cập nhật trạng thái đơn hàng" as UC_UpdateStatus
+    usecase "In hóa đơn / Phiếu giao nhận" as UC_PrintInvoice
+    usecase "Xuất danh sách đơn hàng ra CSV" as UC_ExportOrderCSV
+}
+
+Customer --> UC_AddToCart
+Customer --> UC_UpdateCart
+Customer --> UC_Checkout
+Customer --> UC_MyOrders
+Customer --> UC_TrackOrder
+
+Admin --> UC_ListAllOrders
+Admin --> UC_SearchOrders
+Admin --> UC_OrderDetail
+Admin --> UC_UpdateStatus
+Admin --> UC_PrintInvoice
+Admin --> UC_ExportOrderCSV
+
+UC_Checkout ..> UC_SelectAddress : <<include>>
+UC_Checkout ..> UC_ApplyVoucher : <<extend>>
+UC_OrderDetail <.. UC_PrintInvoice : <<extend>>
+UC_MyOrders <.. UC_TrackOrder : <<extend>>
+
+@enduml
+
+@startuml uc_branch_inventory_voucher_review
+!theme plain
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor "Khách hàng (Member)" as Customer
+actor "Quản trị viên (Admin)" as Admin
+
+rectangle "Phân Hệ Kho Hàng, Voucher, Đánh Giá & Bài Viết" {
+    ' Kho hàng
+    usecase "Xem nhật ký biến động kho" as UC_InvLogs
+    usecase "Điều chỉnh kiểm kê / Nhập xuất kho" as UC_AdjustStock
+    usecase "Nhận cảnh báo tồn kho thấp" as UC_LowStockAlert
+    
+    ' Voucher
+    usecase "Tạo / Cập nhật mã giảm giá Voucher" as UC_ManageVoucher
+    usecase "Bật / Tắt kích hoạt Voucher" as UC_ToggleVoucher
+    usecase "Xem lịch sử khách dùng mã (Voucher Usages)" as UC_VoucherUsages
+    usecase "Xóa mã giảm giá" as UC_DeleteVoucher
+    
+    ' Review
+    usecase "Gửi đánh giá sao & nhận xét sản phẩm" as UC_WriteReview
+    usecase "Kiểm duyệt đánh giá (Duyệt / Ẩn)" as UC_ModerateReview
+    usecase "Xóa đánh giá vi phạm" as UC_DeleteReview
+    
+    ' Bài viết
+    usecase "Đọc bài viết cẩm nang ráp Gunpla" as UC_ReadArticle
+    usecase "Đăng bài viết mới / Soạn nội dung" as UC_CreateArticle
+    usecase "Chỉnh sửa & quản lý xuất bản bài viết" as UC_EditArticle
+    usecase "Xóa bài viết" as UC_DeleteArticle
+}
+
+Customer --> UC_WriteReview
+Customer --> UC_ReadArticle
+
+Admin --> UC_InvLogs
+Admin --> UC_AdjustStock
+Admin --> UC_LowStockAlert
+
+Admin --> UC_ManageVoucher
+Admin --> UC_ToggleVoucher
+Admin --> UC_VoucherUsages
+Admin --> UC_DeleteVoucher
+
+Admin --> UC_ModerateReview
+Admin --> UC_DeleteReview
+
+Admin --> UC_CreateArticle
+Admin --> UC_EditArticle
+Admin --> UC_DeleteArticle
+
+@enduml
